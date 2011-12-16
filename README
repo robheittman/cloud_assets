@@ -23,23 +23,33 @@ on configuration and utility.
 Installation
 ------------
 
-Add cloud_assets to your Gemfile and bundle install, then
-define the following in your environment.
+1.
 
-Required:
-CLOUD_ASSET_ORIGIN - Origin URI for remote assets
+  Add cloud_assets to your Gemfile and bundle install, then
+  define the following in your environment.
 
-Optional:
-CLOUD_ASSET_CDN - Content delivery network, if any. This
-is used to rewrite URIs for images and other large static
-assets to the CDN instead of Rails.
+  Required:
+  CLOUD_ASSET_ORIGIN - Origin URI for remote assets
 
-Put a route at the bottom of your routes.rb:
+  Optional:
+  CLOUD_ASSET_CDN - Content delivery network, if any. This
+  is used to rewrite URIs for images and other large static
+  assets to the CDN instead of Rails.
+
+2.
+
+  Put a route at the bottom of your routes.rb:
 
   match '*url' => 'cloud_assets#content'
 
-This will allow cloud_assets to handle anything Rails
-doesn't recognize.
+  This will allow cloud_assets to handle anything Rails
+  doesn't recognize.
+
+3.
+
+  In application_controller.rb:
+
+  include CloudAssets
 
 Additional Configuration
 ------------------------
@@ -57,9 +67,16 @@ Usage
 Set a remote layout for an HTML view by defining the URI to
 the layout on the remote system, e.g.
 
-  @remote_layout = '/template'
+  set_remote_layout '/templates/foo.html'
 
 You can inject additional content into the elements of that
-template, or override the elements of that template, using CSS
-selectors and inject_
+template, or override the interior of its elements, using CSS
+selectors:
 
+  inject_into_remote_layout '#notice' => flash[:notice]
+  override_remote_layout 'body' => yield
+
+Finally, obtain and show the result (complete with rewrites
+of CDN URLs and so on) with:
+
+  apply_remote_layout
