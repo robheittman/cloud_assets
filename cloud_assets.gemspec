@@ -8,10 +8,15 @@ Gem::Specification.new do |s|
   s.authors     = ["Rob Heittman"]
   s.email       = ["heittman.rob@gmail.com"]
   s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
-
-  s.rubyforge_project = "cloud_assets"
+  s.summary     = %q{
+    Enables a Rails app to make transparent use of
+    assets on a remote server in an alternative technology.
+  }
+  s.description = %q{
+    This isn't meant for general purpose use yet, but
+    rather to recycle some frequently used code among
+    my projects.
+  }
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
@@ -20,5 +25,7 @@ Gem::Specification.new do |s|
 
   # specify any dependencies here; for example:
   # s.add_development_dependency "rspec"
-  # s.add_runtime_dependency "rest-client"
+  s.add_runtime_dependency "typhoeus"
+  s.add_runtime_dependency "nokogiri"
+  s.add_runtime_dependency "dalli"
 end
