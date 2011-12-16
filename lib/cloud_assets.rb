@@ -4,20 +4,6 @@ module CloudAssets
 
   ApplicationController.class_eval do
 
-    def handle_response(response)
-      if response.is_a? Hash
-        response
-      else
-        if response.success?
-          JSON.parse(response.body)
-        elsif response.code == 404
-          nil
-        else
-          raise response.body
-        end
-      end
-    end
-
     def cloud_asset(path)
       p = "#{ENV['CLOUD_ASSET_ORIGIN']}#{path}"
       puts "Fetching from #{p}"
@@ -82,38 +68,38 @@ module CloudAssets
       doc
     end
 
-    helper_method :inject_into_cms_layout
-    def inject_into_cms_layout(hash)
+    helper_method :inject_into_remote_layout
+    def inject_into_remote_layout(hash)
       if @injections.nil?
         @injections = {}
       end
       @injections.merge! hash
     end
 
-    helper_method :override_cms_layout
-    def override_cms_layout(hash)
+    helper_method :override_remote_layout
+    def override_remote_layout(hash)
       if @overrides.nil?
         @overrides = {}
       end
       @overrides.merge! hash
     end
 
-    helper_method :set_cms_layout_template
-    def set_cms_layout_template(template)
-      @template = template
+    helper_method :set_remote_layout
+    def set_remote_layout(layout)
+      @remote_layout = layout
     end
 
-    helper_method :apply_cms_layout
-    def apply_cms_layout
-      if @template.nil?
-        @template = "/templates/page.html"
+    helper_method :apply_remote_layout
+    def apply_remote_layout
+      if @remote_layout.nil?
+        @remote_layout = "/templates/page.html"
       end
-      if @template.kind_of? String
-        puts "Fetching fresh template #{@template}"
-        doc = optimized_html_for cloud_asset "#{@template}"
+      if @remote_layout.kind_of? String
+        puts "Fetching fresh template #{@remote_layout}"
+        doc = optimized_html_for cloud_asset "#{@remote_layout}"
       else
         puts "Using already fetched template"
-        doc = optimized_html_for @template
+        doc = optimized_html_for @remote_layout
       end
       unless @overrides.nil?
         @overrides.each do |key, value|
@@ -140,4 +126,27 @@ module CloudAssets
 
   end
 
+end
+
+class CloudAssetsController < ApplicationController
+  def content
+    asset_response = cloud_asset request.fullpath
+    if asset_response.success?
+      content_type = asset_response.headers_hash['Content-type']
+      if content_type.kind_of? Array
+        content_type = content_type.pop
+      end
+      if content_type =~ /text\/html/
+        set_cms_layout_template asset_response
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        render :html => ''
+      else
+        puts "Warning: inefficient pass-through of #{content_type} at #{request.fullpath}"
+        response.headers['Cache-Control'] = 'max-age=60'
+        send_data asset_response.body, :type => content_type, :disposition => 'inline'
+      end
+    else
+      render :status => :not_found
+    end
+  end
 end

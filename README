@@ -1,2 +1,65 @@
 cloud_assets enables a Rails app to make transparent use of
 assets on a remote server in an alternative technology.
+
+Principles and modes of operation
+---------------------------------
+
+You can avoid incorporating static assets in your Rails
+app directly, if they exist somewhere else on the internet.
+With cloud_assets you configure your Rails app as the
+front end for assets managed in another internet-connected
+system, e.g. WordPress, Drupal, SharePoint, etc.
+
+Instead of returning a 404 Not Found, cloud_assets will
+proxy a pooled request to the remote server, cache the
+content locally, and serve it from Rails.
+
+cloud_assets also provides tools and vocabulary for making
+Rails views that make use of HTML originating on the
+remote system, and rewrites URIs in such templates to
+point either to the local Rails system or a CDN, depending
+on configuration and utility.
+
+Installation
+------------
+
+Add cloud_assets to your Gemfile and bundle install, then
+define the following in your environment.
+
+Required:
+CLOUD_ASSET_ORIGIN - Origin URI for remote assets
+
+Optional:
+CLOUD_ASSET_CDN - Content delivery network, if any. This
+is used to rewrite URIs for images and other large static
+assets to the CDN instead of Rails.
+
+Put a route at the bottom of your routes.rb:
+
+  match '*url' => 'cloud_assets#content'
+
+This will allow cloud_assets to handle anything Rails
+doesn't recognize.
+
+Additional Configuration
+------------------------
+
+If you are serving any non-trivial amount of remotely
+sourced assets out of your Rails system, you'll want a cache.
+cloud_assets likes memcached via dalli.
+
+To enable it, just define $hydra_cache somewhere in one of
+your initializers.
+
+Usage
+-----
+
+Set a remote layout for an HTML view by defining the URI to
+the layout on the remote system, e.g.
+
+  @remote_layout = '/template'
+
+You can inject additional content into the elements of that
+template, or override the elements of that template, using CSS
+selectors and inject_
+
