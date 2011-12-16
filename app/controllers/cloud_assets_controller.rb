@@ -130,7 +130,7 @@ class CloudAssetsController < ApplicationController
         content_type = content_type.pop
       end
       if content_type =~ /text\/html/
-        set_cms_layout_template asset_response
+        set_remote_layout asset_response
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
         render :html => ''
       else
