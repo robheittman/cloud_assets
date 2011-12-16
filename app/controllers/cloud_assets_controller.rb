@@ -132,7 +132,7 @@ class CloudAssetsController < ApplicationController
       if content_type =~ /text\/html/
         set_remote_layout asset_response
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-        render :html => ''
+        render :html => '', :template => nil
       else
         puts "Warning: inefficient pass-through of #{content_type} at #{request.fullpath}"
         response.headers['Cache-Control'] = 'max-age=60'
