@@ -1,4 +1,5 @@
 require 'typhoeus'
+require 'nokogiri'
 
 class CloudAssetsController < ApplicationController
 
