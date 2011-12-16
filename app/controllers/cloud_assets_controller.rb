@@ -1,3 +1,5 @@
+require 'typhoeus'
+
 class CloudAssetsController < ApplicationController
 
   def cloud_asset(path)
