@@ -13,11 +13,13 @@ module CloudAssets
           p = "#{ENV['CLOUD_ASSET_ORIGIN']}#{path}"
           puts "Fetching from #{p}"
           hydra = Typhoeus::Hydra.new
-          hydra.cache_getter do |request|
-            $dalli_cache.get(request.cache_key) rescue nil
-          end
-          hydra.cache_setter do |request|
-            $dalli_cache.set(request.cache_key, request.response, request.cache_timeout)
+          unless $dalli_cache.nil?
+            hydra.cache_getter do |request|
+              $dalli_cache.get(request.cache_key) rescue nil
+            end
+            hydra.cache_setter do |request|
+              $dalli_cache.set(request.cache_key, request.response, request.cache_timeout)
+            end
           end
           request = Typhoeus::Request.new p, {:follow_location => true, :max_redirects => 3, :cache_timeout => 300000}
           asset_response = nil
@@ -92,37 +94,42 @@ module CloudAssets
         end
 
         def apply_remote_layout
-          if @remote_layout.nil?
-            @remote_layout = "/templates/page.html"
-          end
-          if @remote_layout.kind_of? String
-            puts "Fetching fresh template #{@remote_layout}"
-            doc = optimized_html_for cloud_asset "#{@remote_layout}"
-          else
-            puts "Using already fetched template"
-            doc = optimized_html_for @remote_layout
-          end
-          unless @overrides.nil?
-            @overrides.each do |key, value|
-              begin
-                doc.at_css(key).inner_html = value
-                puts "Overrode template element: #{key}"
-              rescue
-                puts "Failed to override template element: #{key}"
+          begin
+            if @remote_layout.nil?
+              @remote_layout = "/templates/page.html"
+            end
+            if @remote_layout.kind_of? String
+              puts "Fetching fresh template #{@remote_layout}"
+              doc = optimized_html_for cloud_asset "#{@remote_layout}"
+            else
+              puts "Using already fetched template"
+              doc = optimized_html_for @remote_layout
+            end
+            unless @overrides.nil?
+              @overrides.each do |key, value|
+                begin
+                  doc.at_css(key).inner_html = value
+                  puts "Overrode template element: #{key}"
+                rescue
+                  puts "Failed to override template element: #{key}"
+                end
               end
             end
-          end
-          unless @injections.nil?
-            @injections.each do |key, value|
-              begin
-                doc.at_css(key).add_child(value)
-                puts "Injected data into template element: #{key}"
-              rescue
-                puts "Failed to inject data into template element: #{key}"
+            unless @injections.nil?
+              @injections.each do |key, value|
+                begin
+                  doc.at_css(key).add_child(value)
+                  puts "Injected data into template element: #{key}"
+                rescue
+                  puts "Failed to inject data into template element: #{key}"
+                end
               end
             end
+            doc
+          rescue => e
+            puts e.inspect
+            puts e.backtrace
           end
-          doc
         end
 
       end
