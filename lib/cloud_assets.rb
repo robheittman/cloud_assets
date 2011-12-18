@@ -93,10 +93,20 @@ module CloudAssets
           @remote_layout = layout
         end
 
+        def set_default_remote_layout(layout)
+          if @remote_layout.nil?
+            @remote_layout = layout
+          end
+        end
+
         def apply_remote_layout
           begin
             if @remote_layout.nil?
-              @remote_layout = "/templates/page.html"
+              raise <<-ERR
+                No remote layout is defined. Use set_remote_layout or
+                set_default_remote_layout in your views prior to calling
+                apply_remote_layout.
+              ERR
             end
             if @remote_layout.kind_of? String
               puts "Fetching fresh template #{@remote_layout}"
@@ -129,6 +139,7 @@ module CloudAssets
           rescue => e
             puts e.inspect
             puts e.backtrace
+            raise e
           end
         end
 
@@ -140,6 +151,7 @@ module CloudAssets
         helper_method :inject_into_remote_layout
         helper_method :override_remote_layout
         helper_method :set_remote_layout
+        helper_method :set_default_remote_layout
         helper_method :apply_remote_layout
       end
     end
