@@ -42,13 +42,16 @@ module CloudAssets
             o = ENV['CLOUD_ASSET_CDN']
           end
           src = src.gsub(ENV['CLOUD_ASSET_ORIGIN'],'')
+          if src =~ /^http:/
+            return src
+          end
           src = "#{o}#{src}"
           puts "optimized #{src}"
           src
         end
 
         def correct_uri(src)
-         src = src.gsub(ENV['CLOUD_ASSET_ORIGIN'],'')
+          src = src.gsub(ENV['CLOUD_ASSET_ORIGIN'],'')
         end
 
         def optimized_html_for(asset_response)
@@ -57,6 +60,9 @@ module CloudAssets
           { 'img' => 'src',
             'link' => 'href' }.each do |tag,attribute|
             doc.css(tag).each do |e|
+              if tag == 'link' and e['rel'] != 'stylesheet'
+                next
+              end
               unless e[attribute].nil?
                 e[attribute] = optimize_uri(e[attribute])
               end
@@ -64,8 +70,12 @@ module CloudAssets
           end
 
           { 'a' => 'href',
-            'script' => 'src' }.each do |tag,attribute|
+            'script' => 'src',
+            'link' => 'href' }.each do |tag,attribute|
             doc.css(tag).each do |e|
+              if tag == 'link' and e['rel'] == 'stylesheet'
+                next
+              end
               unless e[attribute].nil?
                 e[attribute] = correct_uri(e[attribute])
               end
