@@ -36,6 +36,10 @@ Installation
   is used to rewrite URIs for images and other large static
   assets to the CDN instead of Rails.
 
+  CLOUD_ASSET_USER, CLOUD_ASSET_PASSWORD - HTTP Basic
+  credentials which will be used when retrieving assets from
+  the cloud asset source.
+
 2.
 
   Put a route at the bottom of your routes.rb:

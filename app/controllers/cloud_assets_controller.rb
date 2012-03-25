@@ -11,9 +11,13 @@ class CloudAssetsController < ApplicationController
         set_remote_layout asset_response
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
         render :html => ''
-      else
-        puts "Warning: inefficient pass-through of #{content_type} at #{request.fullpath}"
+      elsif content_type =~ /javascript/
         response.headers['Cache-Control'] = 'max-age=60'
+        # In externally sourced JS, mask the cloud source to point here
+        body = asset_response.body.gsub! ENV['CLOUD_ASSET_ORIGIN'],''
+        send_data body, :type => content_type, :disposition => 'inline'
+      else
+        response.headers['Cache-Control'] = 'max-age=3600'
         send_data asset_response.body, :type => content_type, :disposition => 'inline'
       end
     else
