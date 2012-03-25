@@ -26,7 +26,6 @@ module CloudAssets
             :cache_timeout => 604800
           }
           unless ENV['CLOUD_ASSET_USER'].nil?
-            puts "Attempting to use auto authentication"
             options[:username] = ENV['CLOUD_ASSET_USER']
             options[:password] = ENV['CLOUD_ASSET_PASSWORD']
             options[:auth_method] = :basic
