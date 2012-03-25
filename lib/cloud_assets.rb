@@ -29,7 +29,7 @@ module CloudAssets
             puts "Attempting to use auto authentication"
             options[:username] = ENV['CLOUD_ASSET_USER']
             options[:password] = ENV['CLOUD_ASSET_PASSWORD']
-            options[:auth_method] = :auto
+            options[:auth_method] = :basic
           end
           request = Typhoeus::Request.new p, options
           asset_response = nil
