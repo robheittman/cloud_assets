@@ -28,6 +28,7 @@ module CloudAssets
           unless ENV['CLOUD_ASSET_USER'].nil?
             options[:username] = ENV['CLOUD_ASSET_USER']
             options[:password] = ENV['CLOUD_ASSET_PASSWORD']
+            options[:auth_method] = :auto
           end
           request = Typhoeus::Request.new p, options
           asset_response = nil
