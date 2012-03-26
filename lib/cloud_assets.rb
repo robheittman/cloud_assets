@@ -2,6 +2,22 @@ require "cloud_assets/version"
 
 module CloudAssets
 
+  def self.setup
+    yield self
+  end
+
+  mattr_accessor :origin
+  @@origin = ENV['CLOUD_ASSET_ORIGIN']
+
+  mattr_accessor :user
+  @@user = ENV['CLOUD_ASSET_USER']
+
+  mattr_accessor :password
+  @@password = ENV['CLOUD_ASSET_PASSWORD']
+
+  mattr_accessor :cdn
+  @@cdn = ENV['CLOUD_ASSET_CDN'] || ''
+
   class Engine < Rails::Engine
 
      module ControllerMethods
@@ -10,7 +26,7 @@ module CloudAssets
         require 'nokogiri'
 
         def cloud_asset(path)
-          p = "#{ENV['CLOUD_ASSET_ORIGIN']}#{path}"
+          p = "#{CloudAssets::origin}#{path}"
           hydra = Typhoeus::Hydra.new
           unless $dalli_cache.nil?
             hydra.cache_getter do |request|
@@ -25,9 +41,9 @@ module CloudAssets
             :max_redirects => 3,
             :cache_timeout => 604800
           }
-          unless ENV['CLOUD_ASSET_USER'].nil?
-            options[:username] = ENV['CLOUD_ASSET_USER']
-            options[:password] = ENV['CLOUD_ASSET_PASSWORD']
+          unless CloudAssets::user.nil?
+            options[:username] = CloudAssets::user
+            options[:password] = CloudAssets::password
             options[:auth_method] = :basic
           end
           request = Typhoeus::Request.new p, options
@@ -42,14 +58,14 @@ module CloudAssets
 
         def optimize_uri(src)
           return nil if src.nil?
-          o = ENV['CLOUD_ASSET_CDN'] || ''
-          src.gsub!(ENV['CLOUD_ASSET_ORIGIN'],'')
+          o = CloudAssets::cdn || ''
+          src.gsub!(CloudAssets::origin,'')
           return src if src =~ /^http:/
           "#{o}#{src}"
         end
 
         def correct_uri(src)
-          src.gsub(ENV['CLOUD_ASSET_ORIGIN'],'')
+          src.gsub(CloudAssets::origin,'')
         end
 
         def optimized_html_for(asset_response)

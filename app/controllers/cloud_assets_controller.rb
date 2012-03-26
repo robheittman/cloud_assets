@@ -14,13 +14,12 @@ class CloudAssetsController < ApplicationController
       elsif content_type =~ /javascript/
         response.headers['Cache-Control'] = 'max-age=60'
         # In externally sourced JS, mask the cloud source to point here
-        body = asset_response.body.gsub! ENV['CLOUD_ASSET_ORIGIN'],''
+        body = asset_response.body.gsub! CloudAssets::origin,''
         send_data body, :type => content_type, :disposition => 'inline'
       elsif content_type =~ /css/
         response.headers['Cache-Control'] = 'max-age=60'
         # In externally sourced CSS, mask the cloud source to point to the CDN
-        o = ENV['CLOUD_ASSET_CDN'] || ''
-        body = asset_response.body.gsub! ENV['CLOUD_ASSET_ORIGIN'], o
+        body = asset_response.body.gsub! CloudAssets::origin, CloudAssets::cdn
         send_data body, :type => content_type, :disposition => 'inline'
       else
         response.headers['Cache-Control'] = 'max-age=3600'
