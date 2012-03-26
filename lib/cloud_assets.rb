@@ -18,8 +18,21 @@ module CloudAssets
   mattr_accessor :cdn
   @@cdn = ENV['CLOUD_ASSET_CDN'] || ''
 
+  # How long objects from the source can be kept in our local cache
   mattr_accessor :cache_timeout_seconds
   @@cache_timeout_seconds = 604800
+
+  # How long to allow clients (and CDN) to keep javascript assets
+  mattr_accessor :javascript_max_age_seconds
+  @@javascript_max_age_seconds = 600
+
+  # How long to allow clients (and CDN) to keep css assets
+  mattr_accessor :css_max_age_seconds
+  @@css_max_age_seconds = 600
+
+  # How long to allow clients (and CDN) to keep other assets
+  mattr_accessor :other_max_age_seconds
+  @@other_max_age_seconds = 86400
 
   class Engine < Rails::Engine
 
