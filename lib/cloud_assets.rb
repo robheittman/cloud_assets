@@ -6,6 +6,24 @@ module CloudAssets
     yield self
   end
 
+  # Monkey-patch this method if you need to hack some fixups into
+  # html from your asset source.
+  def self.fixup_html(html)
+    html
+  end
+
+  # Monkey-patch this method if you need to hack some fixups into
+  # javascript from your asset source.
+  def self.fixup_javascript(javascript)
+    javascript
+  end
+
+  # Monkey-patch this method if you need to hack some fixups into
+  # css from your asset source.
+  def self.fixup_css(css)
+    css
+  end
+
   mattr_accessor :origin
   @@origin = ENV['CLOUD_ASSET_ORIGIN']
 
@@ -180,7 +198,7 @@ module CloudAssets
             # We don't know what in-doc references might be to, so we have to make
             # them local and can't optimize them to the CDN -- at least not without
             # some serious guessing which we are not ready to do
-            doc.to_s.gsub CloudAssets::origin, ''
+            CloudAssets::fixup_html(doc.to_s.gsub CloudAssets::origin, '')
           rescue => e
             puts e.inspect
             puts e.backtrace
