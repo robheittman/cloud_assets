@@ -34,6 +34,9 @@ module CloudAssets
   mattr_accessor :other_max_age_seconds
   @@other_max_age_seconds = 86400
 
+  mattr_accessor :verbose
+  @@verbose = false
+
   class Engine < Rails::Engine
 
      module ControllerMethods
@@ -61,6 +64,9 @@ module CloudAssets
             options[:username] = CloudAssets::user
             options[:password] = CloudAssets::password
             options[:auth_method] = :basic
+          end
+          if CloudAssets.verbose
+            puts "Retrieving remote asset #{p}"
           end
           request = Typhoeus::Request.new p, options
           asset_response = nil
