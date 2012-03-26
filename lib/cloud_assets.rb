@@ -18,6 +18,9 @@ module CloudAssets
   mattr_accessor :cdn
   @@cdn = ENV['CLOUD_ASSET_CDN'] || ''
 
+  mattr_accessor :cache_timeout_seconds
+  @@cache_timeout_seconds = 604800
+
   class Engine < Rails::Engine
 
      module ControllerMethods
@@ -39,7 +42,7 @@ module CloudAssets
           options = {
             :follow_location => true,
             :max_redirects => 3,
-            :cache_timeout => 604800
+            :cache_timeout => CloudAssets::cache_timeout_seconds
           }
           unless CloudAssets::user.nil?
             options[:username] = CloudAssets::user
@@ -155,7 +158,10 @@ module CloudAssets
                 end
               end
             end
-            doc
+            # We don't know what in-doc references might be to, so we have to make
+            # them local and can't optimize them to the CDN -- at least not without
+            # some serious guessing which we are not ready to do
+            doc.to_s.gsub CloudAssets::origin, ''
           rescue => e
             puts e.inspect
             puts e.backtrace
