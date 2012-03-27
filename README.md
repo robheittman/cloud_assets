@@ -62,7 +62,7 @@ If you are serving any non-trivial amount of remotely
 sourced assets out of your Rails system, you'll want a cache.
 cloud_assets likes memcached via dalli.
 
-To enable it, just define $hydra_cache somewhere in one of
+To enable it, just define $dalli_cache somewhere in one of
 your initializers.
 
 Usage
