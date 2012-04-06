@@ -106,13 +106,15 @@ apply_remote_layout
 ```
 
 So a complete application layout would look something like this (Haml):
-```haml
+
+```
 - set_default_remote_layout '/about/'
 - inject_into_remote_layout 'head' => (render :partial => 'layouts/headers')
 - unless yield.empty?
   - override_remote_layout '#content' => yield
 != apply_remote_layout
 ```
+
 This loads the HTML of the remote "about" page, rewrites references to
 localhost or the CDN as appropriate, injects Rails headers form the
 headers partial into the HTML head element, and replaces the interior
