@@ -153,6 +153,17 @@ module CloudAssets
           @overrides.merge! hash
         end
 
+        def replace_remote_layout(hash)
+          if @replacements.nil?
+            @replacements = {}
+          end
+          @replacements.merge! hash
+        end
+
+        def remove_remote_layout(selector)
+          replace_remote_layout(selector => '')
+        end
+
         def set_remote_layout(layout)
           @remote_layout = layout
         end
@@ -176,6 +187,15 @@ module CloudAssets
               doc = optimized_html_for cloud_asset "#{@remote_layout}"
             else
               doc = optimized_html_for @remote_layout
+            end
+            unless @replacements.nil?
+              @replacements.each do |key, value|
+                begin
+                  doc.at_css(key).replace(value)
+                rescue
+                  puts "Failed to replace template element: #{key}"
+                end
+              end
             end
             unless @overrides.nil?
               @overrides.each do |key, value|
@@ -213,6 +233,8 @@ module CloudAssets
         include ControllerMethods
         helper_method :inject_into_remote_layout
         helper_method :override_remote_layout
+        helper_method :replace_remote_layout
+        helper_method :remove_remote_layout
         helper_method :set_remote_layout
         helper_method :set_default_remote_layout
         helper_method :apply_remote_layout

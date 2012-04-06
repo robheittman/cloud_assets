@@ -96,6 +96,8 @@ selectors:
 ```ruby
 inject_into_remote_layout '#notice' => flash[:notice]
 override_remote_layout 'body' => yield
+replace_remote_layout '#unwanted_stuff' => 'wanted stuff'
+remove_remote_layout '.unwanted_classes'
 ```
 
 Finally, obtain and show the result (complete with rewrites
