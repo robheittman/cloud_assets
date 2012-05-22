@@ -93,6 +93,11 @@ module CloudAssets
           end
           hydra.queue request
           hydra.run
+          if asset_response.code == 404
+            raise ActionController::RoutingError.new("Remote asset not found")
+          elsif asset_response.code > 399
+            raise Exception.new("Error on remote asset server")
+          end
           asset_response
         end
 
@@ -104,7 +109,7 @@ module CloudAssets
           "#{o}#{src}"
         end
 
-        def correct_uri(src)
+       def correct_uri(src)
           src.gsub(CloudAssets::origin,'')
         end
 
