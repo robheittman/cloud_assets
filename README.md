@@ -159,7 +159,7 @@ blacklisting or whitelisting URLs for the remote asset source.
 ```ruby
 module CloudAssets
   def self.fixup_url(fullpath)
-    html.gsub 'wrongness', 'rightness'
+    fullpath.gsub 'wrongness', 'rightness'
   end
 end
 ```
