@@ -13,6 +13,12 @@ module CloudAssets
   end
 
   # Monkey-patch this method if you need to hack some fixups into
+  # asset requests urls
+  def self.fixup_url(fullpath)
+    fullpath
+  end
+
+  # Monkey-patch this method if you need to hack some fixups into
   # javascript from your asset source.
   def self.fixup_javascript(javascript)
     javascript
@@ -63,7 +69,7 @@ module CloudAssets
         require 'nokogiri'
 
         def cloud_asset(path)
-          p = "#{CloudAssets::origin}#{path}"
+          p = CloudAssets::fixup_url("#{CloudAssets::origin}#{path}")
           hydra = Typhoeus::Hydra.new
           unless $dalli_cache.nil?
             hydra.cache_getter do |request|
