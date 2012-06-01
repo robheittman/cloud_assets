@@ -123,13 +123,13 @@ headers partial into the HTML head element, and replaces the interior
 of the element whose id is "content" -- say it's a div -- with the
 yield of the Rails view that uses this layout.
 
-## Fixups
+## HTML Fixups
 
 The remote site likely was not designed to have its HTML repurposed and
 rewritten on other sites. Sites following best practices *should* not
 need any manual fixups. However, any number of hacks might produce HTML
 that cloud_assets does not know how to rewrite. You have an opportunity
-to fix these by adding a monkey-patch to your initializer:
+to fix these by adding some monkey-patches to your initializer:
 
 ```ruby
 module CloudAssets
@@ -146,3 +146,20 @@ and best practice, it would be good to submit a pull request so
 cloud_assets can handle it. If not, it would be ideal to fix the
 remote asset source -- e.g. remove hard-coded references or eliminate
 unwarranted assumptions.
+
+## Remote URL Fixups
+
+You can also use a monkey-patch to rewrite the URLs used to fetch the
+remote assets, in case they do not align with the URLs of your
+Rails site. Normally, cloud_assets just passes through the path
+component of the URL exactly as requested from Rails; this allows
+you to change that behavior to do anything you want, for example,
+blacklisting or whitelisting URLs for the remote asset source.
+
+```ruby
+module CloudAssets
+  def self.fixup_url(fullpath)
+    html.gsub 'wrongness', 'rightness'
+  end
+end
+```
