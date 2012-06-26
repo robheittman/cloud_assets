@@ -76,7 +76,11 @@ module CloudAssets
               $dalli_cache.get(request.cache_key) rescue nil
             end
             hydra.cache_setter do |request|
-              $dalli_cache.set(request.cache_key, request.response, request.cache_timeout)
+              begin
+                $dalli_cache.set(request.cache_key, request.response, request.cache_timeout)
+              rescue
+                logger.info "Attempt to save to memcached thru Dalli failed."
+              end
             end
           end
           options = {
