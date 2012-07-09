@@ -79,7 +79,7 @@ module CloudAssets
               begin
                 $dalli_cache.set(request.cache_key, request.response, request.cache_timeout)
               rescue
-                logger.info "Attempt to save to memcached thru Dalli failed."
+                Rails.logger.info "Attempt to save to memcached thru Dalli failed."
               end
             end
           end
@@ -94,7 +94,7 @@ module CloudAssets
             options[:auth_method] = :basic
           end
           if CloudAssets.verbose
-            puts "Retrieving remote asset #{p}"
+            Rails.logger.debug "Retrieving remote asset #{p}"
           end
           request = Typhoeus::Request.new p, options
           asset_response = nil
@@ -104,9 +104,9 @@ module CloudAssets
           hydra.queue request
           hydra.run
           if asset_response.code == 404
-            raise ActionController::RoutingError.new("Remote asset not found")
+            raise ActionController::RoutingError.new("Remote asset not found: #{path}")
           elsif asset_response.code > 399
-            raise Exception.new("Error on remote asset server")
+            raise Exception.new("Error #{asset_response.code} on remote asset server fetching #{path}")
           end
           asset_response
         end
@@ -192,11 +192,13 @@ module CloudAssets
         def apply_remote_layout
           begin
             if @remote_layout.nil?
-              raise <<-ERR
-                No remote layout is defined. Use set_remote_layout or
-                set_default_remote_layout in your views prior to calling
-                apply_remote_layout.
-              ERR
+              raise Exception.new(
+                <<-ERR
+                  No remote layout is defined. Use set_remote_layout or
+                  set_default_remote_layout in your views prior to calling
+                  apply_remote_layout.
+                ERR
+              )
             end
             if @remote_layout.kind_of? String
               doc = optimized_html_for cloud_asset "#{@remote_layout}"
@@ -208,7 +210,7 @@ module CloudAssets
                 begin
                   doc.at_css(key).replace(value)
                 rescue
-                  puts "Failed to replace template element: #{key}"
+                  Rails.logger.warn "Failed to replace template element: #{key}"
                 end
               end
             end
@@ -217,7 +219,7 @@ module CloudAssets
                 begin
                   doc.at_css(key).inner_html = value
                 rescue
-                  puts "Failed to override template element: #{key}"
+                  Rails.logger.warn "Failed to override template element: #{key}"
                 end
               end
             end
@@ -226,7 +228,7 @@ module CloudAssets
                 begin
                   doc.at_css(key).add_child(value)
                 rescue
-                  puts "Failed to inject data into template element: #{key}"
+                  Rails.logger.warn "Failed to inject data into template element: #{key}"
                 end
               end
             end
@@ -235,8 +237,7 @@ module CloudAssets
             # some serious guessing which we are not ready to do
             CloudAssets::fixup_html(doc.to_s.gsub CloudAssets::origin, '')
           rescue => e
-            puts e.inspect
-            puts e.backtrace
+            Rails.logger.error e
             raise e
           end
         end
