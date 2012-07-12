@@ -208,7 +208,9 @@ module CloudAssets
             unless @replacements.nil?
               @replacements.each do |key, value|
                 begin
-                  doc.at_css(key).replace(value)
+                  doc.css(key).each do |node|
+                    node.replace(value)
+                  end
                 rescue
                   Rails.logger.warn "Failed to replace template element: #{key}"
                 end
@@ -217,7 +219,9 @@ module CloudAssets
             unless @overrides.nil?
               @overrides.each do |key, value|
                 begin
-                  doc.at_css(key).inner_html = value
+                  doc.css(key).each do |node|
+                    inner_html = value
+                  end
                 rescue
                   Rails.logger.warn "Failed to override template element: #{key}"
                 end
@@ -226,7 +230,9 @@ module CloudAssets
             unless @injections.nil?
               @injections.each do |key, value|
                 begin
-                  doc.at_css(key).add_child(value)
+                  doc.css(key).each do |node|
+                    add_child(value)
+                  end
                 rescue
                   Rails.logger.warn "Failed to inject data into template element: #{key}"
                 end
