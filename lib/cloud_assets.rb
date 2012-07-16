@@ -220,7 +220,7 @@ module CloudAssets
               @overrides.each do |key, value|
                 begin
                   doc.css(key).each do |node|
-                    inner_html = value
+                    node.inner_html = value
                   end
                 rescue
                   Rails.logger.warn "Failed to override template element: #{key}"
@@ -231,7 +231,7 @@ module CloudAssets
               @injections.each do |key, value|
                 begin
                   doc.css(key).each do |node|
-                    add_child(value)
+                    node.add_child(value)
                   end
                 rescue
                   Rails.logger.warn "Failed to inject data into template element: #{key}"
