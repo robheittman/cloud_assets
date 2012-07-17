@@ -70,7 +70,7 @@ module CloudAssets
 
         def cloud_asset(path)
           p = CloudAssets::fixup_url("#{CloudAssets::origin}#{path}")
-          hydra = Typhoeus::Hydra.new
+          hydra = Typhoeus::Hydra.hydra
           unless $dalli_cache.nil?
             hydra.cache_getter do |request|
               $dalli_cache.get(request.cache_key) rescue nil
@@ -260,6 +260,7 @@ module CloudAssets
         helper_method :set_remote_layout
         helper_method :set_default_remote_layout
         helper_method :apply_remote_layout
+        helper_method :cloud_asset
       end
     end
   end
