@@ -124,7 +124,7 @@ module CloudAssets
         end
 
         def optimized_html_for(asset_response)
-          doc = Nokogiri::HTML(asset_response.body)
+          doc = Nokogiri::HTML(asset_response.body,nil,'UTF-8')
 
           { 'img' => 'src',
             'link' => 'href' }.each do |tag,attribute|
@@ -207,6 +207,7 @@ module CloudAssets
             end
             unless @replacements.nil?
               @replacements.each do |key, value|
+                value = value.encode("UTF-8")
                 begin
                   doc.css(key).each do |node|
                     node.replace(value)
@@ -218,6 +219,7 @@ module CloudAssets
             end
             unless @overrides.nil?
               @overrides.each do |key, value|
+                value = value.encode("UTF-8")
                 begin
                   doc.css(key).each do |node|
                     node.inner_html = value
@@ -229,6 +231,7 @@ module CloudAssets
             end
             unless @injections.nil?
               @injections.each do |key, value|
+                value = value.encode("UTF-8")
                 begin
                   doc.css(key).each do |node|
                     node.add_child(value)
@@ -238,10 +241,11 @@ module CloudAssets
                 end
               end
             end
+            s = doc.serialize(:encoding => 'UTF-8')
             # We don't know what in-doc references might be to, so we have to make
             # them local and can't optimize them to the CDN -- at least not without
             # some serious guessing which we are not ready to do
-            CloudAssets::fixup_html(doc.to_s.gsub CloudAssets::origin, '')
+            CloudAssets::fixup_html(s.gsub CloudAssets::origin, '')
           rescue => e
             Rails.logger.error e
             raise e
