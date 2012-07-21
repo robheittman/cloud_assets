@@ -219,13 +219,25 @@ module CloudAssets
             end
             unless @overrides.nil?
               @overrides.each do |key, value|
+                except = {}
+                if value.kind_of? Hash
+                  # interpret as an option set
+                  except = value[:except]
+                  value = value[:value]
+                end
                 value = value.encode("UTF-8")
                 begin
                   doc.css(key).each do |node|
+                    except.each do |e|
+                       node.css(e).each do |sn|
+                         value << sn.to_s
+                       end
+                    end
                     node.inner_html = value
                   end
-                rescue
+                rescue StandardError => e
                   Rails.logger.warn "Failed to override template element: #{key}"
+                  Rails.logger.warn e
                 end
               end
             end
