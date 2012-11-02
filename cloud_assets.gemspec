@@ -31,7 +31,7 @@ Gem::Specification.new do |s|
 
   # specify any dependencies here; for example:
   # s.add_development_dependency "rspec"
-  s.add_runtime_dependency "typhoeus", "1.4.2"
+  s.add_runtime_dependency "typhoeus", "~>0.4.2"
   s.add_runtime_dependency "nokogiri"
   s.add_runtime_dependency "dalli"
 end
