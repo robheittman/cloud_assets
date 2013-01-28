@@ -69,6 +69,9 @@ module CloudAssets
         require 'nokogiri'
 
         def cloud_asset(path)
+          if path =~ /^http.?:/
+            raise ActionController::RoutingError.new("URL instead of URI for remote asset: #{path}")
+          end
           p = CloudAssets::fixup_url("#{CloudAssets::origin}#{path}")
           hydra = Typhoeus::Hydra.hydra
           unless $dalli_cache.nil?
